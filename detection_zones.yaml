@@ -1,0 +1,60 @@
+# Configuration for detection zones used in the AI pipeline.
+# Each item in the list represents a distinct zone that the system can monitor.
+#
+# A zone is defined by three properties:
+#   - label: A unique name for the zone (e.g., "Head Zone").
+#   - color: The BGR (Blue, Green, Red) color value painted on the mask image for this zone.
+#            Format is [B, G, R] with values from 0 to 255.
+#   - joint_ids: A list of keypoint IDs to check within this zone.
+#
+# The keypoint IDs from the YOLOv8-Pose model are as follows:
+# 0: nose
+# 1: left_eye
+# 2: right_eye
+# 3: left_ear
+# 4: right_ear
+# 5: left_shoulder
+# 6: right_shoulder
+# 7: left_elbow
+# 8: right_elbow
+# 9: left_wrist
+# 10: right_wrist
+# 11: left_hip
+# 12: right_hip
+# 13: left_knee
+# 14: right_knee
+# 15: left_ankle
+# 16: right_ankle
+
+detection_zones:
+  - label: "Side Zone"
+    color: [0, 0, 255]  # Blue
+    joint_ids: ["7:10"] #wrist and elbow
+
+  - label: "Left Hand Zone"
+    color: [0, 255, 0]  # Green
+    joint_ids: ["7:10"] #wrist and elbow
+
+  - label: "Customer Interaction Zone"
+    color: [255, 0, 0]  # Red
+    joint_ids: ["13:16"] #foot and knee
+
+  - label: "Torso Zone"
+    color: [255, 255, 0] # Cyan
+    joint_ids: [5, 6, 11, 12]
+
+  - label: "Left Foot Zone"
+    color: [255, 0, 255] # Magenta
+    joint_ids: [15]
+
+  - label: "Right Foot Zone"
+    color: [0, 255, 255] # Yellow
+    joint_ids: [16]
+
+  - label: "Knee Area"
+    color: [128, 0, 128] # Purple
+    joint_ids: [13, 14]
+
+  - label: "Elbow Area"
+    color: [0, 165, 255] # Orange
+    joint_ids: [7, 8]

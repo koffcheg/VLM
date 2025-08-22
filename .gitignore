@@ -1,0 +1,11 @@
+__pycache__
+backup/
+live_images_dir/*
+saved_sessions/*
+*.tar
+*.mp4
+*.tar.gz
+*.log
+/venv/
+.env
+*.pt

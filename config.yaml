@@ -1,0 +1,155 @@
+# ===================================================================
+#      Master Configuration for the Multi-Modal AI Pipeline
+# ===================================================================
+# This YAML file defines all operational parameters for the script.
+# Any value set here overrides the script's default, and any
+# command-line argument will override a value set in this file.
+
+# -------------------------------------------------------------------
+# § 1. Video Source Configuration
+# -------------------------------------------------------------------
+
+# The primary video source for the main inference pipeline.
+# Can be an RTSP stream URL or a local path to a video file. This source is required.
+video_source: "rtsp://admin:qwer1234@192.168.10.30:554/Streaming/Channels/102"
+
+# An optional second video source.
+# If process_both_streams is false, this is used only for recording.
+# If process_both_streams is true, it will also be put through the AI pipeline.
+#video_source_2: "rtsp://admin:qwer1234@192.168.10.30:554/Streaming/Channels/102"
+
+# Optional high-resolution streams for saving images/videos.
+# These are separate from the main inference streams and allow you to record
+# in high quality while processing in lower quality for performance.
+# Set to null or comment out to disable.
+save_stream_url_1: "rtsp://admin:qwer1234@192.168.10.30:554/Streaming/Channels/101"
+save_stream_url_2: "rtsp://admin:qwer1234@192.168.10.31:554/Streaming/Channels/101"
+
+# -------------------------------------------------------------------
+# § 2. Display and Logging
+# -------------------------------------------------------------------
+
+# If true, opens a live display window (using OpenCV) showing the annotated video feed.
+# Set to false for "headless" operation.
+display_video: false
+
+# Controls the amount of information printed to the terminal.
+# 'debug': Prints real-time metrics for each frame and session details.
+# 'silent': Prints only essential startup and shutdown messages.
+log_level: 'debug'
+
+# If specified, redirects all script console output to this file.
+# This includes startup messages, real-time performance metrics, session status,
+# and the full JSON data object generated for each frame.
+# Only active when log_level is 'debug'.
+debug_log_file: null
+
+# -------------------------------------------------------------------
+# § 3. Session-Based Recording
+# -------------------------------------------------------------------
+
+# The root directory where full, non-overwriting session recordings are saved.
+# The script will create date and time subfolders here (e.g., /YYYY-MM-DD/HH-MM-SS/).
+# Set to null to disable session-based recording.
+save_session_path: "saved_sessions"
+
+# The time in seconds to wait after the last valid person has been detected before ending a session.
+session_timeout: 40.0
+
+# If true and video_source_2 is active, this combines the annotated primary frame
+# and the secondary frame into a single vertically-stacked image for session recordings.
+combine_video_sources: true
+
+# If true, session recordings will save the original, raw camera frames.
+# If false (default), it saves the processed frames with drawings and overlays.
+session_save_raw: true
+
+# -------------------------------------------------------------------
+# § 4. Generic "Live" Saving (Circular Buffer)
+# -------------------------------------------------------------------
+
+# Path to a directory for saving raw, non-annotated input frames.
+# This is a continuously overwriting "live feed" of the most recent frames.
+# Set to null to disable.
+save_input_path: "live_images_dir"
+
+# Path to a directory for saving final annotated output frames.
+# This is a continuously overwriting "live feed" of the most recent frames.
+# Set to null to disable.
+save_output_path: null
+
+# Path to a directory for saving structured data (the final JSON object).
+# This is a continuously overwriting "live feed" of the most recent data files.
+# Set to null to disable.
+save_json_path: "live_images_dir"
+
+# For the generic saves above, this sets the maximum number of files to keep.
+# It creates a circular buffer that overwrites the oldest files. '0' means no limit.
+# This setting does NOT apply to session recordings.
+max_saves: 86400
+
+# The minimum time interval in seconds between any two save operations (live or session).
+# '0.0' means save every processed frame.
+save_interval: 2.0
+
+# -------------------------------------------------------------------
+# § 5. Model and Inference Configuration
+# -------------------------------------------------------------------
+
+# Disables the entire first stage (YOLOv8-Pose model). No detection will occur.
+disable_stage_one: false
+
+# Disables the second stage (YOLO-E Segmentation model).
+disable_stage_two: true
+
+# If true, runs the full AI pipeline on both the primary and secondary video streams.
+# If false, the secondary stream is used for recording only (no inference).
+process_both_streams: true
+
+# Confidence threshold for person detection (Stage 1). Detections below this value are ignored.
+# Range: 0.0 to 1.0.
+person_conf: 0.7
+
+# Confidence threshold for individual pose keypoints (e.g., elbow, wrist).
+# Keypoints below this confidence are considered unreliable for pose checks. Range: 0.0 to 1.0.
+pose_conf: 0.7
+
+# Time in seconds a specific pose must be held continuously to be confirmed.
+# Helps filter out fleeting, accidental poses.
+pose_hold_time: 1
+
+# The text prompt used for the segmentation model (Stage 2) if it is enabled.
+prompt: 'a person wearing a blue shirt'
+
+# The detection mode for the segmentation model.
+# 'direct_prompt' uses the text from the 'prompt' variable directly.
+detection_mode: 'direct_prompt'
+
+# -------------------------------------------------------------------
+# § 6. Detection Masking Configuration
+# -------------------------------------------------------------------
+
+# Path to an input mask image (e.g., mask.jpg).
+# The colors in this image are used to define valid detection zones.
+# If a mask is used, only people with keypoints in these zones will be processed.
+input_mask: mask.jpg
+
+# Path to the YAML file that defines the meaning of the colors in the mask image.
+# It maps colors to zone labels and keypoint IDs.
+zone_config: 'detection_zones.yaml'
+
+# Alters the mask's behavior for people detected OUTSIDE the valid zones.
+# If false, people outside a valid zone are completely ignored.
+# If true, they are still counted as a person, but their pose analysis is skipped.
+ignore_pose_only: false
+
+# -------------------------------------------------------------------
+# § 7. Debugging and Analysis
+# -------------------------------------------------------------------
+
+# If true, enables logging of detection events (e.g., person presence, raw pose detections)
+# to a CSV file for analyzing model performance and filtering false positives over time.
+log_noise_data: false
+
+# The directory where the noise data CSV file will be saved if log_noise_data is true.
+noise_log_path: 'noise_logs'
